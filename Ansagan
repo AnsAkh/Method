@@ -1,0 +1,36 @@
+# Импортируем необходимые библиотеки
+from bs4 import BeautifulSoup
+import requests
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Собираем данные с веб-сайта с помощью BeautifulSoup (здесь приведен простой пример)
+url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data'
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+# Извлекаем данные из HTML-страницы (здесь предполагается, что данные хранятся в таблице)
+# Замените это на соответствующий код для вашего случая
+data = []
+for row in soup.find_all('tr'):
+    cols = row.find_all('td')
+    data.append([col.text for col in cols])
+
+# Подготовьте данные и разделите их на обучающую и тестовую выборки
+# В этом примере предполагается, что данные имеют два числовых признака и метки классов
+X = [[float(row[0]), float(row[1])] for row in data]
+y = [int(row[2]) for row in data]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Создайте и обучите модель методом Парзеновского окна
+knn = KNeighborsClassifier(n_neighbors=5, weights='distance')
+knn.fit(X_train, y_train)
+
+# Предсказание на тестовых данных
+y_pred = knn.predict(X_test)
+
+# Оценка производительности модели
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Точность модели: {accuracy}")
